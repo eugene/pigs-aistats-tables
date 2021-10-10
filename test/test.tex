@@ -1,0 +1,119 @@
+\documentclass[twoside]{article}
+
+\usepackage{aistats2022}
+% If your paper is accepted, change the options for the package
+% aistats2022 as follows:
+%
+%\usepackage[accepted]{aistats2022}
+%
+% This option will print headings for the title of your paper and
+% headings for the authors names, plus a copyright note at the end of
+% the first column of the first page.
+
+% If you set papersize explicitly, activate the following three lines:
+%\special{papersize = 8.5in, 11in}
+%\setlength{\pdfpageheight}{11in}
+%\setlength{\pdfpagewidth}{8.5in}
+
+% If you use natbib package, activate the following three lines:
+\usepackage[round]{natbib}
+\renewcommand{\bibname}{References}
+\renewcommand{\bibsection}{\subsubsection*{\bibname}}
+
+% If you use BibTeX in apalike style, activate the following line:
+%\bibliographystyle{apalike}
+\usepackage[utf8]{inputenc} % allow utf-8 input
+\usepackage[T1]{fontenc}    % use 8-bit T1 fonts
+\usepackage{hyperref}       % hyperlinks
+\usepackage{url}            % simple URL typesetting
+\usepackage{booktabs}       % professional-quality tables
+\usepackage{amsfonts}       % blackboard math symbols
+\usepackage{nicefrac}       % compact symbols for 1/2, etc.
+\usepackage{microtype}      % microtypography
+\usepackage{xcolor}         % colors
+
+% ==============================
+% My packages
+\usepackage{amsmath}
+\usepackage{svg}
+\usepackage{pdfpages}
+\usepackage{wrapfig}
+\usepackage{longtable}
+\usepackage{lipsum}
+\usepackage[ruled]{algorithm2e}
+\usepackage{graphicx,multirow}
+\usepackage{xfrac}
+\usepackage{subcaption}
+\usepackage{csvsimple}
+\usepackage{lscape}
+\usepackage[normalem]{ulem}
+
+
+
+
+% Unnumber algoright
+% \makeatletter
+% \newcommand{\RemoveAlgoNumber}{\renewcommand{\fnum@algocf}{\AlCapSty{\AlCapFnt\algorithmcfname}}}
+% \newcommand{\RevertAlgoNumber}{\algocf@resetfnum}
+% \makeatother
+
+% Colours
+\definecolor{navyBlue}{HTML}{030F4F}
+\definecolor{primaryRed}{HTML}{990000}
+\definecolor{editGreen}{HTML}{40916c}
+
+
+% My inputs
+%\input{setup/math}
+\bibliographystyle{unsrtnat}
+
+\begin{document}
+
+\twocolumn[
+\aistatstitle{Robust uncertainty estimates with out-of-distribution pseudo-inputs training}
+
+\aistatsauthor{ Pierre Segonne \And Yevgen Zainchkovskyy \And  Søren Hauberg}
+
+\aistatsaddress{ Institution 1 \And  Institution 2 \And Institution 3 } ]
+
+\begin{abstract}
+  Probabilistic models often use neural networks to control their predictive uncertainty.
+  However, when making \textit{out-of-distribution (OOD)} predictions, the often-uncontrollable 
+  extrapolation properties of neural networks yield poor uncertainty predictions. Such models then don't \textit{know what they don't know}, which directly limits their robustness w.r.t unexpected inputs.
+  To counter this, we propose to explicitly train the uncertainty predictor where we are not given data
+  to make it reliable. As one cannot train without data, we provide mechanisms for generating
+  \emph{pseudo-inputs} in informative low-density regions of the input space, and show how to leverage these in a practical
+  Bayesian framework that casts a prior distribution over the model uncertainty. With a holistic evaluation, we demonstrate that this yields robust and interpretable predictions of uncertainty while retaining
+  state-of-the-art performance on diverse tasks such as regression and generative modelling.\looseness=-1
+\end{abstract}
+
+% ==========================
+% \input{sections/introduction}
+% \input{sections/method}
+% \section{Experiments}
+% \input{sections/regression}
+% \input{sections/generative_modelling}
+% \input{sections/conclusion}
+% ==========================
+
+% ==========================
+% DO NOT INCLUDE AT SUBMISSION TIME
+% \textbf{\large Acknowledgements.} ...
+\section{Lipsum}
+\lipsum
+
+%\bibliography{bibliography}
+
+% DO NOT INCLUDE AT SUBMISSION TIME
+% \input{appendix}
+
+\clearpage
+\onecolumn
+% \begin{landscape}
+
+\input{../output/1-table_elbo_not_shifted.tex}
+\input{../output/2-table_ELL.tex}
+\input{../output/3-table_RMSE.tex}
+
+% \end{landscape}
+\end{document}
