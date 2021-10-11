@@ -6,8 +6,8 @@ def process(df, higher_is_better=True, n=5):
     df = df.copy()
     
     # remove columns with nans
-    df.dropna(axis=1, how='any', inplace=True)
-
+    # df.dropna(axis=1, how='any', inplace=True)
+    
     wins, draws, losses = defaultdict(int), defaultdict(int), defaultdict(int)
 
     for dataset in df.index.get_level_values(0):
