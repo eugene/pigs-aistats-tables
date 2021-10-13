@@ -31,6 +31,7 @@
 \usepackage{nicefrac}       % compact symbols for 1/2, etc.
 \usepackage{microtype}      % microtypography
 \usepackage{xcolor}         % colors
+\usepackage{makecell}
 
 % ==============================
 % My packages
@@ -61,7 +62,7 @@
 \definecolor{navyBlue}{HTML}{030F4F}
 \definecolor{primaryRed}{HTML}{990000}
 \definecolor{editGreen}{HTML}{40916c}
-
+\definecolor{gray}{HTML}{aaaaaa}
 
 % My inputs
 %\input{setup/math}
@@ -100,7 +101,16 @@
 % DO NOT INCLUDE AT SUBMISSION TIME
 % \textbf{\large Acknowledgements.} ...
 \section{Lipsum}
+\input{example.tex}
 \lipsum
+
+\input{../output/0-table-summary.tex}
+
+% \begin{table*}
+%     \caption{UCI benchmarks. Each square shows the performance of a given model (rows) on a given dataset (columns). The intensity of the colouring represents the certitude that the associated model performed best on the given dataset. Grey rows mean impossible evaluation for a metric.}
+%     \vspace{3mm}
+%     \label{tab:uci}
+% \end{table*}
 
 %\bibliography{bibliography}
 
