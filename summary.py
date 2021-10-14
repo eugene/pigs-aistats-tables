@@ -1,7 +1,6 @@
 from collections import defaultdict
-
-from hamcrest import matches_regexp
 from test_mean_equal import test_mean_difference
+import sys
 import pandas as pd
 
 def process_one_win(df, higher_is_better=True, n=5):
@@ -131,28 +130,37 @@ def generate_latex(matrix, filename='output/0-table-summary.tex'):
         'test_mean_fit_rmse↓':           r'$\text{RMSE}[y, \mu(x)]$',
         'test_variance_fit_rmse↓':       r'$\text{RMSE}[\mathrm{Var}[y|x], (y-\mu(x))^2]$', #[y|x],\left(y-\mu(x)\right)^2\right]$', 
         'test_sample_fit_rmse↓':         r'$\text{RMSE}[y,\tilde{y}]$',
-        'noise_mean_uncertainty↑':       r'$E[\sigma]$',
-        'noise_kl_divergence↓':          r'$E[\text{KL}]$'
+        'noise_mean_uncertainty↑':       r'$\mathbb{E}[\sigma]$',
+        'noise_kl_divergence↓':          r'$\mathbb{E}[\text{KL}]$'
     }
 
     matrix_ = matrix.rename(columns=columns_full, index=index_full)
 
     output = []
     # output.append(r'\definecolor{gray}{HTML}{aaaaaa}')
-    output.append(r'\scalebox{0.75}{')
-    output.append(r'\begin{tabular}{' + 'l' + ('r@{ / }l'*(len(matrix.columns)*1)) + r'}')
+    output.append(r'\scalebox{0.85}{')
+    output.append(r'\begin{tabular}{' + 'l' + 'r@{ / }lr@{ / }lr@{ / }lr@{ / }lr@{ / }l|r@{ / }lr@{ / }lr@{ / }lr@{ / }l' + r'}')
     output.append(r'\toprule')
     mcols = list(map(lambda e: "\makecell[l]{" + e + "}", matrix_.columns))
-    mcols = list(map(lambda e: "\multicolumn{2}{r}{" + e + "}", mcols))
-    output.append(r'\makecell{UCI benchmarks\\ shifts included} & ' + r' & '.join(mcols) + r"\\")
+    # mcols = list(map(lambda e: "\multicolumn{2}{r}{" + e + "}", mcols))
+    mcols_ = []
+    for i, col in enumerate(mcols):
+        if i == 4:
+            mcols_.append("\multicolumn{2}{r|}{" + col + "}")
+        else:
+            mcols_.append("\multicolumn{2}{r}{" + col + "}")
+    output.append(r'\makecell{UCI benchmarks\\ shifts included} & ' + r' & '.join(mcols_) + r"\\")
     output.append(r'\midrule')
 
     for i, row in matrix_.iterrows():
         row_ = [i]
-        for k,v in row.iteritems():
+        for k, v in row.iteritems():
             wins, draws, winner = v.latex_tuple()
-            wins_str = str(wins) if not winner else r'\textbf{' + str(wins) + r"}"
-            row_.append(r"{" + wins_str + r"}&{\color{gray}{" + str(draws) + r"}}")
+            if wins != -1:
+                wins_str = str(wins) if not winner else r'\textbf{' + str(wins) + r"}"
+                row_.append(r"{" + wins_str + r"}&{\color{gray}{" + str(draws) + r"}}")
+            else:
+                row_.append(r"{\color{gray}{n}}&{\color{gray}{a}}")
 
         output.append( ' & '.join(row_) + r" \\")
         # break
@@ -168,8 +176,16 @@ def generate_latex(matrix, filename='output/0-table-summary.tex'):
 
 df = pd.read_csv('ncp_sggm_uci_benchmarks.csv', index_col=[0,1], header=[0,1])
 
-# Drop the `f_gaussian` method
+# Drop the `f_gaussian` and `Det` method
 df.drop('f_gaussian_noise', axis=1, level=0, inplace=True)
+df.drop('Det', axis=1, level=0, inplace=True)
+
+# Re-arrange
+cols = ['f_kde', 'f_standard_elbo', 'f_vap', 'f_mvn', 'john', 'f_ens' , 'f_mcd', 'BBB+NCP', 'BBB']
+new_cols = df.columns.reindex(cols, level=0)
+df = df.reindex(columns=new_cols[0]) #new_cols is a single item tuple
+
+# sys.exit()
 
 # Not shifted or shifted
 # df = df.iloc[~df.index.get_level_values(0).str.endswith('_shifted')]
@@ -181,7 +197,7 @@ comparators = {
     'test_mean_fit_rmse↓':           False,
     'test_variance_fit_rmse↓':       False,
     'test_sample_fit_rmse↓':         False,
-    'noise_mean_uncertainty↑':       True,
+    # 'noise_mean_uncertainty↑':       True,
     'noise_kl_divergence↓':          False
 }
 
@@ -195,7 +211,7 @@ if True or not 'matrix' in locals():
     for c in matrix:                   # Sorry. Ain't got time 
         for r, _ in matrix[c].items(): # for Pandas documentation.
             matrix.loc[r, c] = Data()  # The one liner was acting up.
-            
+
     for metric, higher_is_better in comparators.items():
         df_subset = df.loc[pd.IndexSlice[:, metric], :]
 
@@ -217,5 +233,14 @@ if True or not 'matrix' in locals():
 
         for method, number in losses.items():
             matrix.loc[metric, method].losses += number
-        
+
+    # Where do we have NA's in original dataframe?
+    na_boolean_df = df.isna().groupby(level=[1]).sum() == len(df.index.get_level_values(0).unique())
+    na_boolean_df = na_boolean_df.groupby(axis=1, level=[0]).sum() > 1
+    
+    for c in na_boolean_df:                   
+        for r, _ in na_boolean_df[c].items():
+            if (True == na_boolean_df.loc[r,c]) and (r in matrix.index):
+                matrix.loc[r, c].wins = -1
+
 generate_latex(matrix)
