@@ -1,0 +1,27 @@
+% \resizebox{\columnwidth}{!}{%
+% \begin{tabular}{lllll}
+% \toprule
+%       & & FashionMNIST & SVHN & CIFAR \\
+% \midrule
+% \multirow{2}{*}{$\log p(\rx)$} & VAE & $2215.54\pm68.81$ & $\mathbf{4304.90\pm58.45}$  & $\mathbf{2930.64\pm14.82}$    \\
+%   & d-V3AE & $\mathbf{2349.71\pm11.80}$ & $4133.41\pm 64.28$ & $2668.85\pm13.23$\\
+% \multirow{2}{*}{$\text{RMSE}(\rx,\tilde{\rx})$} & VAE & $0.171\pm0.003$ & $0.097\pm7\text{e-}4$  & $0.154\pm5\text{e-}4$    \\
+%   & d-V3AE & $\mathbf{0.158\pm0.003}$ & $\mathbf{0.087\pm0.002}$ & $\mathbf{0.129\pm7\text{e-}4}$\\
+% \bottomrule
+% \end{tabular}
+% }
+
+\resizebox{\columnwidth}{!}{%
+\setcellgapes{3pt}
+\makegapedcells
+\begin{tabular}{@{\hskip0pt}llr@{$\pm$}lr@{$\pm$}lr@{$\pm$}lr@{$\pm$}lr@{$\pm$}lr@{$\pm$}l}
+\toprule
+      & & \multicolumn{2}{l}{FashionMNIST} & \multicolumn{2}{l}{SVHN} & \multicolumn{2}{l}{CIFAR} \\
+\midrule
+\multirow{2}{*}{\rotatebox[origin=c]{0}{$\log p(\rx)$}} & VAE & $2215.54$ & $68.81$ & $\mathbf{4304.90}$ & $\mathbf{58.45}$ & $\mathbf{2930.64}$ & $\mathbf{14.82}$    \\
+  & d-V3AE & $\mathbf{2349.71}$ & $\mathbf{11.80}$ & $4133.41$ & $64.28$ & $2668.85$ & $13.23$\\
+\multirow{2}{*}{\rotatebox[origin=c]{0}{$\text{RMSE}(\rx,\tilde{\rx})$}} & VAE & $0.171$ & $0.003$ & $0.097$ & $7\text{e-}4$ & $0.154$ & $5\text{e-}4$    \\
+  & d-V3AE & $\mathbf{0.158}$ & $\mathbf{0.003}$ & $\mathbf{0.087}$ & $\mathbf{0.002}$ & $\mathbf{0.129}$ & $\mathbf{7\text{e-}4}$\\
+\bottomrule
+\end{tabular}
+}

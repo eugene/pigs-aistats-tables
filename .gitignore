@@ -1,2 +1,5 @@
 .DS_Store
-
+output/*
+test/*.aux
+test/*.log
+test/*.pdf

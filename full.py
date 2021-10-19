@@ -1,67 +1,88 @@
-from numpy import longfloat
+from collections import defaultdict
+import sys
 import pandas as pd
 
-df = pd.read_csv('ncp_sggm_uci_benchmarks.csv')
-new_col_names = { 
-    df.columns[0]: "dataset",
-    df.columns[1]: "metric",
+df = pd.read_csv('ncp_sggm_uci_benchmarks.csv', index_col=[0,1], header=[0,1])
+
+# Drop the `f_gaussian` and `Det` method
+df.drop('f_gaussian_noise', axis=1, level=0, inplace=True)
+df.drop('Det', axis=1, level=0, inplace=True)
+
+# Re-arrange
+cols = ['f_kde', 'f_standard_elbo', 'f_vap', 'f_mvn', 'john', 'f_ens' , 'f_mcd', 'BBB+NCP', 'BBB']
+new_cols = df.columns.reindex(cols, level=0)
+df = df.reindex(columns=new_cols[0]) #new_cols is a single item tuple
+
+columns_full = {
+    'f_kde':           r'd-VV',
+    'f_standard_elbo': r'VV',
+    'f_vap':           r'VV\\ (no prior)',
+    'f_mvn':           r'Mean\\ variance\\ network',
+    'john':            r'Skafte\\ et al',
+    'f_ens':           r'Deep\\ ensembles',
+    'f_mcd':           r'Monte\\ Carlo\\ dropout',
+    'BBB+NCP':         r'Noise\\ contrastive\\ priors',
+    'BBB':             r'Bayes\\ by\\ backprop',
+    # 'Det':           r'Bifucarted\\ mean vari-\\ance network'
 }
-df.rename(columns=new_col_names, inplace = True)
-df.loc[0]['dataset'] = df.loc[0]['metric'] = ''
 
-def get_df(metric = 'test_elbo↑', shifted=False):
-    if not shifted:
-        not_shifted = ~df['dataset'].str.endswith('_shifted')
+# test_elbo↑
+# test_expected_log_likelihood↑
+# test_mean_fit_rmse↓
+# test_variance_fit_rmse↓
+# test_sample_fit_rmse↓
+# noise_kl_divergence↓
+
+metric_name = 'test_sample_fit_rmse↓'
+                           
+metric = df.loc[pd.IndexSlice[:, metric_name], :]
+subset = metric.iloc[~metric.index.get_level_values(0).str.endswith('_shifted')]
+subset2 = metric.iloc[metric.index.get_level_values(0).str.endswith('_shifted')]
+
+output = []
+output.append(r'\resizebox{\columnwidth}{!}{')
+# output.append(r'\setcellgapes{0pt}\makegapedcells')
+align_string = "r@{ $\pm$ }l"*4
+align_string += "r@{ $\pm$ }l|"
+align_string += "r@{ $\pm$ }l"*4
+output.append(r'\begin{tabular}{' + '@{\hskip0pt}ll' + align_string + r'}')
+output.append(r'\toprule')
+mcols = list(map(lambda e: "\makecell[l]{" + e + "}", columns_full.values()))
+mcols_ = []
+for i, col in enumerate(mcols):
+    if i == 4:
+        mcols_.append("\multicolumn{2}{r|}{" + col + "}")
     else:
-        not_shifted = df['dataset'].str.endswith('_shifted')
+        mcols_.append("\multicolumn{2}{r}{" + col + "}")
+        
+output.append(r'\multicolumn{2}{l}{\makecell{UCI benchmarks}} & ' + r' & '.join(mcols_) + r"\\")
+output.append(r'\midrule')
 
-    metric      = df['metric'] == metric
+for ii, (index, row) in enumerate(subset.iterrows()):
+    line, cells = [], []
+    prepend = r'\multirow{12}{*}{\rotatebox[origin=c]{90}{Not shifted}}' if ii == 0 else '~'
+    line.append(prepend + r' & \texttt{' + index[0].replace('_', r'\_') + r'}')
+    for enum, (i_, r) in enumerate(row.items()):
+        cells.append(str(round(r, 2)))
+    line.append('&'.join(cells))
+    output.append(r' & '.join(line) + r' \\')
 
-    subset = df[metric & not_shifted]
+output.append(r'\midrule')
 
-    resulting_series = {}
-    columns_of_interest = subset.columns[2:][~subset.columns[2:].str.endswith('.1')]
+for ii, (index, row) in enumerate(subset2.iterrows()):
+    line, cells = [], []
+    prepend = r'\multirow{12}{*}{\rotatebox[origin=c]{90}{Shifted}}' if ii == 0 else '~'
+    line.append(prepend + r' & \texttt{' + index[0].replace('_', r'\_').replace(r'\_shifted', '') + r'}')
+    for enum, (i_, r) in enumerate(row.items()):
+        cells.append(str(round(r, 2)))
+    line.append('&'.join(cells))
+    output.append(r' & '.join(line) + r' \\')
 
-    for col in columns_of_interest:
-        values_series = subset[col].astype(float).round(2).astype(str)
-        std_series = subset[col + '.1'].astype(float).round(2).astype(str)
-        series = values_series + '±' + std_series
-        series.replace('nan±nan', 'na', inplace=True)
-        resulting_series[col] = series #.append(series)
 
-    resulting_df = pd.DataFrame(resulting_series)
-    resulting_df.index = subset['dataset']
+output.append(r'\bottomrule')
+output.append(r'\end{tabular}')
+output.append(r'}')
 
-    order = ['f_kde', 'f_standard_elbo', 'f_gaussian_noise', 'f_vap', 'f_mvn', 'f_ens', 'f_mcd', 'john', 'BBB+NCP', 'BBB', 'Det']
-    resulting_df = resulting_df[order]
-    resulting_df.index.name = ''
 
-    new_col_names = { 
-        resulting_df.columns[0]: "d-VV",
-        resulting_df.columns[1]: "VV (no PIG)",
-        resulting_df.columns[2]: "VV (Gaussian Noise)",
-        resulting_df.columns[3]: "VV (no prior)",
-    }
-    resulting_df.rename(columns=new_col_names, inplace = True)
-    return resulting_df
-
-def write_to_file(path, df, caption):
-    kwargs = {
-        'longtable': True,
-        'position': 'l',
-        'bold_rows': True,
-        'index_names': False,
-    }
-    with open(path, "w") as text_file:
-        text_file.write(df[df.columns[:5]].to_latex(**kwargs, caption=caption))
-        text_file.write('\\addtocounter{table}{-1}\n')
-        text_file.write(df[df.columns[5:]].to_latex(**kwargs))
-
-df_uci_L_not_shifted = get_df(metric = 'test_elbo↑', shifted=False)
-write_to_file("output/1-table_elbo_not_shifted.tex", df_uci_L_not_shifted, "UCI benchmarks - $\mathcal{L}$")
-
-df_uci_Ell_not_shifted = get_df(metric = 'test_expected_log_likelihood↑', shifted=False)
-write_to_file("output/2-table_ELL.tex", df_uci_Ell_not_shifted, "UCI benchmarks - $\log p(y|x)$")
-
-df_uci_L_not_shifted = get_df(metric = 'test_mean_fit_rmse↓', shifted=False)
-write_to_file("output/3-table_RMSE.tex", df_uci_L_not_shifted, "UCI benchmarks - RMSE $[y, \mu(x)]$")
+with open(f"output/full-table-{metric_name}.tex", "w") as text_file:
+    text_file.write("\n".join(output))

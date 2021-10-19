@@ -1,0 +1,19 @@
+\begin{figure*}[t!]
+% \centering
+\begin{minipage}[t]{.71\textwidth}
+    % \centering
+    \includegraphics[width=\textwidth]{assets/toy_result.pdf}
+    \caption{Toy regression results. On the left, the mean predictions are surrounded by $\pm$ 2 standard deviations, with the training data of the bottom row presenting a shift. On the right are displayed the predictive uncertainty fit and the prior KL divergence.}
+    \label{fig:toy_result}
+\end{minipage}%
+\hspace{.04\textwidth}
+\begin{minipage}[t]{.24\textwidth}
+    % \vspace{-22.5mm}
+    % \centering
+    % \includesvg[width=\textwidth]{assets/aleatoric_epistemic_split_toy}
+    \includegraphics[width=\textwidth]{assets/vae_variance_plots.pdf}
+    \caption{Aleatoric (yellow) and epistemic (dark) uncertainties.}
+    \label{fig:aleatoric_epistemic_split_toy}
+\end{minipage}
+\end{figure*}
+    

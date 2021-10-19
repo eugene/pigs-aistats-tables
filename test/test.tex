@@ -48,7 +48,7 @@
 \usepackage{csvsimple}
 \usepackage{lscape}
 \usepackage[normalem]{ulem}
-
+\input{math}
 
 
 
@@ -101,29 +101,62 @@
 % DO NOT INCLUDE AT SUBMISSION TIME
 % \textbf{\large Acknowledgements.} ...
 \section{Lipsum}
-\input{example.tex}
-\lipsum
+\input{col_table}
 
-\input{../output/0-table-summary.tex}
+\begin{table*}[h]
+\caption{UCI benchmarks over 5 trials. Each cell counts the number of datasets for which each method demonstrated the best average. Grey shows statistical draws and "n/a" metrics impossible to evaluate for a method.  Best per metric is highlighted in bold.\looseness=-1}
+\label{tab:uci_no_shifts}
+\input{../output/0-table-summary-no-shifts.tex}
+\end{table*}
 
-% \begin{table*}
-%     \caption{UCI benchmarks. Each square shows the performance of a given model (rows) on a given dataset (columns). The intensity of the colouring represents the certitude that the associated model performed best on the given dataset. Grey rows mean impossible evaluation for a metric.}
-%     \vspace{3mm}
-%     \label{tab:uci}
-% \end{table*}
+\begin{table*}[h]
+\caption{UCI benchmarks over 5 trials. Each cell counts the number of datasets for which each method demonstrated the best average. Grey shows statistical draws and "n/a" metrics impossible to evaluate for a method.  Best per metric is highlighted in bold.\looseness=-1}
+\label{tab:uci_only_shifts}
+\input{../output/0-table-summary-only-shifts.tex}
+\end{table*}
 
-%\bibliography{bibliography}
-
-% DO NOT INCLUDE AT SUBMISSION TIME
-% \input{appendix}
+% \input{wide-figure.tex}
 
 \clearpage
+
 \onecolumn
-% \begin{landscape}
 
-\input{../output/1-table_elbo_not_shifted.tex}
-\input{../output/2-table_ELL.tex}
-\input{../output/3-table_RMSE.tex}
+\begin{table}[h]
+\caption{UCI benchmarks - $\mathcal{L}$}
+\label{tab:uci_benchmarks_elbo}
+\input{../output/full-table-test_elbo↑}
+\end{table}
 
-% \end{landscape}
+\begin{table}[h]
+\caption{UCI benchmarks - $\log p(y|x)$}
+\label{tab:uci_benchmarks_log_p}  
+\input{../output/full-table-test_expected_log_likelihood↑}
+\end{table}
+
+\clearpage
+
+\begin{table}[h]
+\caption{UCI benchmarks - $\text{RMSE}\left[y,\mu(x)\right]$}
+\label{tab:uci_benchmarks_mean_rmse}
+\input{../output/full-table-test_mean_fit_rmse↓}
+\end{table}
+
+\begin{table}[h]
+\caption{UCI benchmarks - $\text{RMSE}\left[\Var[y|x],\left(y-\mu(x)\right)^2\right]$}
+\label{tab:uci_benchmarks_variance_rmse}
+\input{../output/full-table-test_variance_fit_rmse↓}
+\end{table}
+
+\begin{table}[ht]
+\caption{UCI benchmarks - $\text{RMSE}\left[y,\tilde{y}\right]$}
+\label{tab:uci_benchmarks_sample_rmse}
+\input{../output/full-table-test_sample_fit_rmse↓}
+\end{table}
+
+\begin{table}[ht]
+\caption{UCI benchmarks - $\mathbb{E}[\text{KL}]$}
+\label{tab:uci_benchmarks_noiee_kl}
+\input{../output/full-table-noise_kl_divergence↓}
+\end{table}
+  
 \end{document}

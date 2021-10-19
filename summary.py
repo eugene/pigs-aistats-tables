@@ -110,7 +110,7 @@ class Data:
     def latex_repr(self):
         return f"{self.wins} / {self.draws}"
 
-def generate_latex(matrix, filename='output/0-table-summary.tex'):
+def generate_latex(matrix, filename='output/0-table-summary-only-shifts.tex'):
     columns_full = {
         'f_kde':           r'd-VV',
         'f_standard_elbo': r'VV',
@@ -128,7 +128,7 @@ def generate_latex(matrix, filename='output/0-table-summary.tex'):
         'test_elbo↑':                    r'$\mathcal{L}$',
         'test_expected_log_likelihood↑': r'$\log p(y|x)$',
         'test_mean_fit_rmse↓':           r'$\text{RMSE}[y, \mu(x)]$',
-        'test_variance_fit_rmse↓':       r'$\text{RMSE}[\mathrm{Var}[y|x], (y-\mu(x))^2]$', #[y|x],\left(y-\mu(x)\right)^2\right]$', 
+        'test_variance_fit_rmse↓':       r'$\text{RMSE}[\mathrm{Var}]$', # r'$\text{RMSE}[\mathrm{Var}[y|x], (y-\mu(x))^2]$'
         'test_sample_fit_rmse↓':         r'$\text{RMSE}[y,\tilde{y}]$',
         'noise_mean_uncertainty↑':       r'$\mathbb{E}[\sigma]$',
         'noise_kl_divergence↓':          r'$\mathbb{E}[\text{KL}]$'
@@ -138,8 +138,9 @@ def generate_latex(matrix, filename='output/0-table-summary.tex'):
 
     output = []
     # output.append(r'\definecolor{gray}{HTML}{aaaaaa}')
-    output.append(r'\scalebox{0.85}{')
-    output.append(r'\begin{tabular}{' + 'l' + 'r@{ / }lr@{ / }lr@{ / }lr@{ / }lr@{ / }l|r@{ / }lr@{ / }lr@{ / }lr@{ / }l' + r'}')
+    output.append(r'\scalebox{0.93}{')
+    # output.append(r'\setcellgapes{0pt}\makegapedcells')
+    output.append(r'\begin{tabular}{' + '@{\hskip0pt}l' + 'r@{ / }lr@{ / }lr@{ / }lr@{ / }lr@{ / }l|r@{ / }lr@{ / }lr@{ / }lr@{ / }l' + r'}')
     output.append(r'\toprule')
     mcols = list(map(lambda e: "\makecell[l]{" + e + "}", matrix_.columns))
     # mcols = list(map(lambda e: "\multicolumn{2}{r}{" + e + "}", mcols))
@@ -149,7 +150,7 @@ def generate_latex(matrix, filename='output/0-table-summary.tex'):
             mcols_.append("\multicolumn{2}{r|}{" + col + "}")
         else:
             mcols_.append("\multicolumn{2}{r}{" + col + "}")
-    output.append(r'\makecell{UCI benchmarks\\ shifts included} & ' + r' & '.join(mcols_) + r"\\")
+    output.append(r'\makecell{UCI benchmarks\\ (shifts included)} & ' + r' & '.join(mcols_) + r"\\")
     output.append(r'\midrule')
 
     for i, row in matrix_.iterrows():
@@ -163,7 +164,6 @@ def generate_latex(matrix, filename='output/0-table-summary.tex'):
                 row_.append(r"{\color{gray}{n}}&{\color{gray}{a}}")
 
         output.append( ' & '.join(row_) + r" \\")
-        # break
 
     output.append(r'\bottomrule')
     output.append(r'\end{tabular}')
